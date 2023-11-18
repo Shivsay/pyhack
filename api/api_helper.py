@@ -13,10 +13,26 @@ def getComments(level, comments):
             getComments(level, commentItem.kids)
 
 
-topStories = hn.show_stories(limit=1)
+def getShowStories():
+    showStories = hn.show_stories(limit=1)
 
-for topStory in topStories:
-    print(topStory.title, " - ", topStory.url, "\nComments:\n")
-    level = ""
-    getComments(level, topStory.kids)
-    print("------------------------------------------")
+    for showStory in showStories:
+        print(showStory.title, " - ", showStory.url, "\nComments:\n")
+        level = ""
+        getComments(level, showStory.kids)
+        print("------------------------------------------")
+
+
+def getTopStories():
+    topStories = hn.top_stories(limit=1)
+
+    for topStory in topStories:
+        print(topStory.title, " - ", topStory.url, "\nComments:\n")
+        level = ""
+        getComments(level, topStory.kids)
+        print("------------------------------------------")
+
+
+getShowStories()
+print("\nNOW TOP:\n")
+getTopStories()
