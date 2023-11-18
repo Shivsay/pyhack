@@ -38,6 +38,28 @@ def getTopStories():
         print("------------------------------------------")
 
 
+def getjobStories():
+    jobStories = hn.job_stories(limit=1)
+
+    for jobStory in jobStories:
+        print(jobStory.title, " - ", jobStory.url, "\nComments:\n")
+        level = ""
+        getComments(level, jobStory.kids)
+        print("------------------------------------------")
+
+def getnewStories():
+    newStories = hn.new_stories(limit=1)
+
+    for newStory in newStories:
+        print(newStory.title, " - ", newStory.url, "\nComments:\n")
+        level = ""
+        getComments(level, newStory.kids)
+        print("------------------------------------------")
+
+
+
 getShowStories()
 print("\nNOW TOP:\n")
 getTopStories()
+getjobStories()
+getnewStories()
