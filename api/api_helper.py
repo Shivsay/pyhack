@@ -1,4 +1,6 @@
 from hackernews import HackerNews
+from bs4 import BeautifulSoup
+
 
 hn = HackerNews()
 
@@ -8,9 +10,12 @@ def getComments(level, comments):
     level += ('\t')
     if comments is not None:
         for comment in comments:
-            commentItem = hn.get_item(comment)
-            print(level, commentItem.text)
-            getComments(level, commentItem.kids)
+            commentListItem = hn.get_item(comment)
+            commentHTMLItem = commentListItem.text
+            commentParsedItem = BeautifulSoup(commentHTMLItem, 'html.parser')
+            commentItem = commentParsedItem.get_text()
+            print(level, commentItem)
+            getComments(level, commentListItem.kids)
 
 
 def getShowStories():
