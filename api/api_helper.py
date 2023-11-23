@@ -1,4 +1,4 @@
-from hackernews import HackerNews
+from .hackernews import HackerNews
 from bs4 import BeautifulSoup
 
 
@@ -17,7 +17,7 @@ def getComments(level, comments):
             print(level, commentItem)
             getComments(level, commentListItem.kids)
 
-
+'''
 def getShowStories():
     showStories = hn.show_stories(limit=1)
 
@@ -26,6 +26,12 @@ def getShowStories():
         level = ""
         getComments(level, showStory.kids)
         print("------------------------------------------")
+'''
+
+def getShowStories(): 
+    showStories = hn.show_stories(limit=20)
+    #return showStories[0].title, showStories[0].score
+    return showStories
 
 
 def getTopStories():
@@ -47,6 +53,7 @@ def getjobStories():
         getComments(level, jobStory.kids)
         print("------------------------------------------")
 
+
 def getnewStories():
     newStories = hn.new_stories(limit=1)
 
@@ -56,10 +63,10 @@ def getnewStories():
         getComments(level, newStory.kids)
         print("------------------------------------------")
 
-
-
+'''
 getShowStories()
 print("\nNOW TOP:\n")
 getTopStories()
 getjobStories()
 getnewStories()
+'''

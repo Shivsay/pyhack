@@ -2,7 +2,6 @@ import tkinter as tk
 import requests
 import json
 import webbrowser
-from progress.bar import Bar
 
 class HackerNewsApp:
     def __init__(self, root):
@@ -44,8 +43,6 @@ class HackerNewsApp:
         self.next_button = tk.Button(root, text="Next Page", command=self.next_page)
         self.next_button.grid(row=7, column=1, padx=10, pady=5, sticky="w")
 
-        self.loading_bar = tk.Canvas(root, width=100, height=20)
-        self.loading_bar.grid(row=8, column=0, columnspan=2, pady=5, sticky="nsew")
 
         # Configure grid weights
         for i in range(9):
@@ -86,10 +83,6 @@ class HackerNewsApp:
             self.text_widget.delete(1.0, tk.END)  # Clear the text widget
             self.text_widget.insert(tk.END, f"{title}\nURL: {url}\n\n", "bold")
 
-            # Fetch and display comments with loading bar
-            bar = Bar('Loading Comments', max=len(story.get("kids", [])))
-            self._display_comments_recursive(story, bar)
-            bar.finish()
 
     def _display_comments_recursive(self, story, bar, level=0):
         for comment_id in story.get("kids", []):
