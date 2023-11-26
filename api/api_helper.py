@@ -17,16 +17,16 @@ def getComments(level, comments):
             print(level, commentItem)
             getComments(level, commentListItem.kids)
 
-'''
-def getShowStories():
-    showStories = hn.show_stories(limit=1)
+def getC(id):
+     itemObj = hn.get_item(id)
+     return itemObj.kids
 
-    for showStory in showStories:
-        print(showStory.title, " - ", showStory.url, "\nComments:\n")
-        level = ""
-        getComments(level, showStory.kids)
-        print("------------------------------------------")
-'''
+def parseC(id):
+    commentListItem = hn.get_item(id)
+    commentHTMLItem = commentListItem.text
+    commentParsedItem = BeautifulSoup(commentHTMLItem, 'html.parser')
+    commentItem = commentParsedItem.get_text()
+    return commentItem
 
 def getShowStories(): 
     showStories = hn.show_stories(limit=20)
@@ -63,10 +63,3 @@ def getnewStories():
         getComments(level, newStory.kids)
         print("------------------------------------------")
 
-'''
-getShowStories()
-print("\nNOW TOP:\n")
-getTopStories()
-getjobStories()
-getnewStories()
-'''
