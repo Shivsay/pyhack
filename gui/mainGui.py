@@ -3,25 +3,46 @@ from tkinter.scrolledtext import ScrolledText
 from tkinter import ttk
 import sys
 import os
+from threading import Thread
 
 
 current_file_path = os.path.abspath(__file__)
 project_root = os.path.dirname(os.path.dirname(current_file_path))
 sys.path.append(project_root)
 
-from pyhack.api.api_helper import getShowStories
+from pyhack.api.api_helper import getShowStories, getC, parseC
 
 
 class Comments(ScrolledText):
-    def __init__(self, root):
+    def __init__(self, root, id):
         super().__init__(root, borderwidth=5)
 
         self.grid(column=0, row=0, rowspan=5,columnspan=2, padx=10, pady=10, sticky="nsew") 
-        
+        self.id = id
+        self.insert('end', "This is the heading\n\n\n")
+        #self.asyncComment(self.fillComments("", self.id))
+        #self.fillComments("", self.id)
         #self.comments = Text(wrap="word", font=("Arial", 12))
         #self.comments.grid(row=0, column=0, rowspan=5, padx=10, pady=10, sticky="nsew")
-        #self.msg = Message(text = "A computer science portal for geeks")   
-        #self.msg.grid(row=0, column=0, rowspan=5, sticky="nsew")
+
+    def asyncComment(self, commentFunc):
+        Thread(target=commentFunc).start()
+    
+    def fillComments(self, level, id):
+        comments = getC(id)
+        print("\n")
+        level += ('\t')
+        if comments is not None:
+            for comment in comments:
+                c = parseC(comment)
+                print(level,c)
+                self.insert('end', level) 
+                self.insert('end', c) 
+                self.insert('end',"\n\n")
+                root.update()
+                self.asyncComment(self.fillComments(level, comment))
+        self.insert('end',"-------C------")  
+        self.insert('end',"\n") 
 
 
 class ListTree(ttk.Frame):
@@ -49,8 +70,8 @@ class ListTree(ttk.Frame):
         self.selected = False
 
     def get_selected(self, event):
-        self.updateWindow_callback()
         selected = self.listTree.selection()
+        self.updateWindow_callback(selected[0])
         return selected[0]
 
     def selfRaise(self):
@@ -74,11 +95,14 @@ class MainGui(ttk.Frame):
         self.frames[1].selfRaise()
         
 
-    def changeFrame(self):
+    def changeFrame(self, id):
+        print(id)
         print("ENTER")
         
-        self.frames[0]=Comments(root)
+        self.frames[0]=Comments(root,id)
         self.frames[0].tkraise()
+        print("FRAME RAISED??")
+        self.frames[0].asyncComment(self.frames[0].fillComments("", id))
 
 
 
