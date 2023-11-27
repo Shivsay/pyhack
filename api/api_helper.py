@@ -4,6 +4,13 @@ from bs4 import BeautifulSoup
 
 hn = HackerNews()
 
+def getTop(id):
+    top = hn.get_item(id)
+    content = [top.url, top.text]
+    #content[0] = top.url
+    #content[1] = top.text
+    return content
+
 def getComment(id):
      itemObj = hn.get_item(id)
      return itemObj.kids

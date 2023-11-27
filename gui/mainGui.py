@@ -10,7 +10,7 @@ current_file_path = os.path.abspath(__file__)
 project_root = os.path.dirname(os.path.dirname(current_file_path))
 sys.path.append(project_root)
 
-from pyhack.api.api_helper import getShowStories, getC, parseC
+from pyhack.api.api_helper import getTop, getShowStories, getComment, parseComment
 
 
 class Comments(ScrolledText):
@@ -19,9 +19,10 @@ class Comments(ScrolledText):
 
         self.grid(column=0, row=0, rowspan=5,columnspan=2, padx=10, pady=10, sticky="nsew") 
         self.id = id
-        self.insert('end', "This is the heading\n\n\n")
-        #self.asyncComment(self.fillComments("", self.id))
-        #self.fillComments("", self.id)
+        self.content = getTop(id)
+        self.insert('end',self.content[0])
+        self.insert('end',"\n=======COMMENTS=======")
+        self.insert('end',"\n\n\n")
         #self.comments = Text(wrap="word", font=("Arial", 12))
         #self.comments.grid(row=0, column=0, rowspan=5, padx=10, pady=10, sticky="nsew")
 
@@ -29,13 +30,11 @@ class Comments(ScrolledText):
         Thread(target=commentFunc).start()
     
     def fillComments(self, level, id):
-        comments = getC(id)
-        print("\n")
+        comments = getComment(id)
         level += ('\t')
         if comments is not None:
             for comment in comments:
-                c = parseC(comment)
-                print(level,c)
+                c = parseComment(comment)
                 self.insert('end', level) 
                 self.insert('end', c) 
                 self.insert('end',"\n\n")
@@ -82,16 +81,18 @@ class ListTree(ttk.Frame):
 class MainGui(ttk.Frame):
     def __init__(self, root):
         super().__init__(root)
-        print("Created")
+        print("Created Main")
 
         self.frames = {} 
         self.frames[1] = ListTree(root, self.changeFrame)
         self.frames[1].grid(row=0, column=0, rowspan=5, padx=10, pady=10, sticky="nsew")
-        self.btn = ttk.Button(root, text="Change", command=self.raiseList).grid(row=1, column=2)
+        self.btn = ttk.Button(root, text="Back", command=self.raiseList, state=DISABLED)
+        self.btn.grid(row=1, column=2)
 
     def raiseList(self):
-        print("Raise")
+        print("Destroy Content")
         self.frames[0].destroy() 
+        self.btn['state'] = DISABLED
         self.frames[1].selfRaise()
         
 
@@ -101,7 +102,8 @@ class MainGui(ttk.Frame):
         
         self.frames[0]=Comments(root,id)
         self.frames[0].tkraise()
-        print("FRAME RAISED??")
+        self.btn['state'] = NORMAL
+        print("Expand Content")
         self.frames[0].asyncComment(self.frames[0].fillComments("", id))
 
 
