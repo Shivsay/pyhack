@@ -4,24 +4,11 @@ from bs4 import BeautifulSoup
 
 hn = HackerNews()
 
-
-def getComments(level, comments):
-    print("\n")
-    level += ('\t')
-    if comments is not None:
-        for comment in comments:
-            commentListItem = hn.get_item(comment)
-            commentHTMLItem = commentListItem.text
-            commentParsedItem = BeautifulSoup(commentHTMLItem, 'html.parser')
-            commentItem = commentParsedItem.get_text()
-            print(level, commentItem)
-            getComments(level, commentListItem.kids)
-
-def getC(id):
+def getComment(id):
      itemObj = hn.get_item(id)
      return itemObj.kids
 
-def parseC(id):
+def parseComment(id):
     commentListItem = hn.get_item(id)
     commentHTMLItem = commentListItem.text
     commentParsedItem = BeautifulSoup(commentHTMLItem, 'html.parser')
@@ -30,36 +17,17 @@ def parseC(id):
 
 def getShowStories(): 
     showStories = hn.show_stories(limit=20)
-    #return showStories[0].title, showStories[0].score
     return showStories
 
 
 def getTopStories():
-    topStories = hn.top_stories(limit=1)
-
-    for topStory in topStories:
-        print(topStory.title, " - ", topStory.url, "\nComments:\n")
-        level = ""
-        getComments(level, topStory.kids)
-        print("------------------------------------------")
-
+    topStories = hn.top_stories(limit=20)
+    return topStories
 
 def getjobStories():
-    jobStories = hn.job_stories(limit=1)
-
-    for jobStory in jobStories:
-        print(jobStory.title, " - ", jobStory.url, "\nComments:\n")
-        level = ""
-        getComments(level, jobStory.kids)
-        print("------------------------------------------")
-
+    jobStories = hn.job_stories(limit=20)
+    return jobStories
 
 def getnewStories():
-    newStories = hn.new_stories(limit=1)
-
-    for newStory in newStories:
-        print(newStory.title, " - ", newStory.url, "\nComments:\n")
-        level = ""
-        getComments(level, newStory.kids)
-        print("------------------------------------------")
-
+    newStories = hn.new_stories(limit=20)
+    return newStories
