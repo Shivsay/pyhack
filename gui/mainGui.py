@@ -10,7 +10,7 @@ current_file_path = os.path.abspath(__file__)
 project_root = os.path.dirname(os.path.dirname(current_file_path))
 sys.path.append(project_root)
 
-from pyhack.api.api_helper import getTop, getShowStories, getComment, parseComment
+from pyhack.api.api_helper import getTop, getTopStories, getShowStories, getNewStories, getJobStories, getComments, parseComment
 
 
 class Comments(ScrolledText):
@@ -30,7 +30,7 @@ class Comments(ScrolledText):
         Thread(target=commentFunc).start()
     
     def fillComments(self, level, id):
-        comments = getComment(id)
+        comments = getComments(id)
         level += ('\t')
         if comments is not None:
             for comment in comments:
@@ -40,12 +40,12 @@ class Comments(ScrolledText):
                 self.insert('end',"\n\n")
                 root.update()
                 self.asyncComment(self.fillComments(level, comment))
-        self.insert('end',"-------C------")  
+        # self.insert('end',"-------C------")  
         self.insert('end',"\n") 
 
 
 class ListTree(ttk.Frame):
-    def __init__(self, root, updateWindow_callback):
+    def __init__(self, root, updateWindow_callback, contentFunction_callback):
         super().__init__(root) 
 
         self.updateWindow_callback = updateWindow_callback
@@ -56,12 +56,13 @@ class ListTree(ttk.Frame):
         self.listTree.heading('title', text='Title')
         self.listTree.heading('score', text='Score')
         self.listTree.grid(row=0, column=0, rowspan=5, padx=10, pady=10, sticky="nsew") 
+        self.contentFunction = contentFunction_callback
 
         scrollbar = ttk.Scrollbar(orient='vertical', command=self.listTree.yview)
         self.listTree.configure(yscroll=scrollbar.set)
-        scrollbar.grid(row=0, column=1, padx=10, pady=10,sticky='ns')
+        scrollbar.grid(row=1, column=1, rowspan=4, padx=10, pady=10,sticky='ns')
 
-        contents = getShowStories()
+        contents = contentFunction_callback
         for content in contents:
             self.listTree.insert('', 'end', iid=content.item_id, values=(content.title, content.score))
 
@@ -83,26 +84,56 @@ class MainGui(ttk.Frame):
         super().__init__(root)
         print("Created Main")
 
+        self.listTypeFunction = getShowStories()
+
         self.frames = {} 
-        self.frames[1] = ListTree(root, self.changeFrame)
+        self.frames[1] = ListTree(root, self.changeFrame, self.listTypeFunction)
         self.frames[1].grid(row=0, column=0, rowspan=5, padx=10, pady=10, sticky="nsew")
-        self.btn = ttk.Button(root, text="Back", command=self.raiseList, state=DISABLED)
-        self.btn.grid(row=1, column=2)
+        
+        self.topStoriesBtn = ttk.Button(root, text="Top", command=lambda: self.changeType(getTopStories()))
+        self.topStoriesBtn.grid(row=0,column=2,pady=10)
+
+        self.showStoriesBtn = ttk.Button(root, text="ShowHN", command=lambda: self.changeType(getShowStories()))
+        self.showStoriesBtn.grid(row=1,column=2,pady=10) 
+
+        self.newStoriesBtn = ttk.Button(root, text="New",command=lambda: self.changeType(getNewStories()))
+        self.newStoriesBtn.grid(row=2,column=2,pady=10)
+
+        self.jobStoriesBtn = ttk.Button(root, text="Job", command=lambda: self.changeType(getJobStories()))
+        self.jobStoriesBtn.grid(row=3,column=2,pady=10)
+
+        self.backBtn = ttk.Button(root, text="Back", command=self.raiseList, state=DISABLED)
+        self.backBtn.grid(row=5, column=2, pady=10)
+
+    def changeType(self, item):
+        print("Changed type");
+        self.frames[1].destroy() 
+        self.frames[1] = ListTree(root, self.changeFrame, item)
+        self.frames[1].selfRaise()
 
     def raiseList(self):
         print("Destroy Content")
         self.frames[0].destroy() 
-        self.btn['state'] = DISABLED
+        self.backBtn['state'] = DISABLED
+
+        self.topStoriesBtn['state'] = NORMAL 
+        self.showStoriesBtn['state'] = NORMAL
+        self.newStoriesBtn['state'] = NORMAL
+        self.jobStoriesBtn['state'] = NORMAL
         self.frames[1].selfRaise()
         
 
     def changeFrame(self, id):
         print(id)
         print("ENTER")
+        self.topStoriesBtn['state'] = DISABLED
+        self.showStoriesBtn['state'] = DISABLED
+        self.newStoriesBtn['state'] = DISABLED
+        self.jobStoriesBtn['state'] = DISABLED
         
         self.frames[0]=Comments(root,id)
         self.frames[0].tkraise()
-        self.btn['state'] = NORMAL
+        self.backBtn['state'] = NORMAL
         print("Expand Content")
         self.frames[0].asyncComment(self.frames[0].fillComments("", id))
 
@@ -111,8 +142,10 @@ class MainGui(ttk.Frame):
 root = Tk()
 root.title("PyHack")
 
-for i in range(1):
-    root.grid_rowconfigure(i, weight=1)
+# Grid setup
+for i in range(5):
+    root.grid_rowconfigure(i, weight=0)
+root.grid_rowconfigure(i, weight=1)
 root.grid_columnconfigure(0, weight=1)
 root.grid_columnconfigure(1, weight=0)
 root.grid_columnconfigure(2, weight=0)
